@@ -152,6 +152,11 @@
       <Version>4.0.0.482894</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="netstandard">
+      <HintPath>..\..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\netstandard.library\2.0.3\build\netstandard2.0\ref\netstandard.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

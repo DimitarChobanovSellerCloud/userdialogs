@@ -123,6 +123,7 @@ namespace Acr.UserDialogs
             {
                 var view = activity.Window.DecorView.RootView.FindViewById(Android.Resource.Id.Content);
                 var msg = this.GetSnackbarText(cfg);
+                
 
                 snackBar = Snackbar.Make(
                     view,
@@ -132,17 +133,8 @@ namespace Acr.UserDialogs
                 if (cfg.BackgroundColor != null)
                     snackBar.View.SetBackgroundColor(cfg.BackgroundColor.Value.ToNative());
 
-                if (cfg.Position == ToastPosition.Top)
-                {
-                    // watch for this to change in future support lib versions
-                    var layoutParams = snackBar.View.LayoutParameters as FrameLayout.LayoutParams;
-                    if (layoutParams != null)
-                    {
-                        layoutParams.Gravity = GravityFlags.Top;
-                        layoutParams.SetMargins(0, 80, 0, 0);
-                        snackBar.View.LayoutParameters = layoutParams;
-                    }
-                }
+                this.SetLayoutMargins(snackBar, cfg);
+
                 if (cfg.Action != null)
                 {
                     snackBar.SetAction(cfg.Action.Text, x =>
@@ -164,6 +156,33 @@ namespace Acr.UserDialogs
             });
         }
 
+        private void SetLayoutMargins(Snackbar snackBar, ToastConfig cfg)
+        {
+            var layoutParams = snackBar.View.LayoutParameters as FrameLayout.LayoutParams;
+
+            if (layoutParams != null)
+            {
+                var scCfg = cfg as SCToastConfig;
+
+                if (scCfg != null)
+                {
+                    layoutParams.SetMargins(scCfg.LeftMargin, scCfg.TopMargin, scCfg.RightMargin, scCfg.BottomMargin);
+                }
+                else
+                {
+                    layoutParams.SetMargins(0, 200, 0, 0);
+                }
+
+                if (cfg.Position == ToastPosition.Top)
+                {
+                    layoutParams.Gravity = GravityFlags.Top;
+                }
+
+                layoutParams.Height = 200;
+
+                snackBar.View.LayoutParameters = layoutParams;
+            }
+        }
 
         protected virtual ISpanned GetSnackbarText(ToastConfig cfg)
         {
@@ -171,6 +190,7 @@ namespace Acr.UserDialogs
 
             string message = cfg.Message;
             var hasIcon = (cfg.Icon != null);
+
             if (hasIcon)
                 message = "\u2002\u2002" + message; // add 2 spaces, 1 for the image the next for spacing between text and image
 
@@ -190,9 +210,29 @@ namespace Acr.UserDialogs
                     new ForegroundColorSpan(cfg.MessageTextColor.Value.ToNative()),
                     0,
                     sb.Length(),
-                    SpanTypes.ExclusiveExclusive
-                );
+                    SpanTypes.ExclusiveExclusive);
             }
+
+            var scCfg = cfg as SCToastConfig;
+
+            if (scCfg != null)
+            {
+                sb.SetSpan(
+                    new StyleSpan((Android.Graphics.TypefaceStyle)scCfg.TextStyle)
+                    , 0
+                    , sb.Length(),
+                    SpanTypes.ExclusiveExclusive);
+
+                if (scCfg.FontSize > default(int))
+                {
+                    sb.SetSpan(
+                    new AbsoluteSizeSpan(scCfg.FontSize, true)
+                    , 0
+                    , sb.Length(),
+                    SpanTypes.ExclusiveExclusive);
+                }
+            }
+
             return sb;
         }
 
